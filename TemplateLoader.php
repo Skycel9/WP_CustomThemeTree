@@ -7,14 +7,12 @@ use WP_Error;
 
 class TemplateLoader {
 
-    public array $templates_parts;
+    static array $templates_parts;
 
     protected function init() {
-        add_filter("template_render", function($templates_path, $type) {
-//            dd($templates_path);
+        add_filter("template_render", function ($templates_path, $type) {
             foreach ($templates_path as $path) {
                 if (file_exists($path)) {
-//                    dd($path);
                     load_template($path);
                     exit;
                 }
@@ -25,132 +23,128 @@ class TemplateLoader {
     }
 
     public static function getTemplates($template, $type, $templates) {
-
         if ($type === "home" || $type === "frontpage") $type = "page";
-        $key = preg_replace("/y$/m", "ie", $type)."s";
+        $key = (int)$type !== 0 ? "errors" : preg_replace("/y$/m", "ie", $type)."s";
 
-        $template_path = get_template_directory() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS[$key];
+        $template_path = get_template_directory() . "/" . TEMPLATES_DIR . "/" . @TEMPLATES_SUBDIRS[$key];
 
-        if ($type === "taxonomy") {
-            foreach($templates as $i => $t) {
-                $filename = preg_replace("/^taxonomy-/m", "", $t);
-                $tax = "";
-                preg_match("/[A-z0-9]+/", $filename, $tax);
+        $func_name = "get".ucfirst($key);
+        call_user_func([self::class, $func_name], $template_path, $type, $templates);
 
-                if (count($templates) - 1 <= $i) {
-                    $tax = "";
-                } else {
-                    $tax = $tax[0]."/";
-                }
+        self::$templates_parts[] = get_template_directory() . "/" . TEMPLATES_DIR . "/index.php";
 
-                $filename = str_replace( $tax . "-", "", $filename);
+        do_action("template_render", self::$templates_parts, $type);
+    }
 
-                $templates_parts[] = $template_path . "/" . $tax . $filename;
-            }
-        } else {
-            foreach ($templates as $t) {
-                $t = preg_replace("/^$type-/m", "", $t);
-                $templates_parts[] = $template_path . "/" . $t;
-            }
+    public static function getDefault($template_path, $type, $templates): void {
+        foreach ($templates as $t) {
+            $t = preg_replace("/^$type-/m", "", $t);
+            self::$templates_parts[] = $template_path . "/" . $t;
         }
-        $templates_parts[] = get_template_directory() . "/" . TEMPLATES_DIR . "/index.php";
-        do_action("template_render", $templates_parts, $type);
+    }
+
+
+    public static function getPages($template_path, $type, $templates): void {
+        self::getDefault($template_path, $type, $templates);
+    }
+
+    public static function getArchives($template_path, $type, $templates): void {
+        self::getDefault($template_path, $type, $templates);
+    }
+
+    public static function getAuthors($template_path, $type, $templates): void {
+        self::getDefault($template_path, $type, $templates);
+    }
+
+    public static function getErrors($template_path, $type, $templates): void {
+        self::getDefault($template_path, $type, $templates);
+    }
+
+    public static function getCategories($template_path, $type, $templates): void {
+        self::getDefault($template_path, $type, $templates);
+    }
+
+    public static function getSingles($template_path, $type, $templates): void {
+        $tmpl = [];
+
+        foreach($templates as $i => $t) {
+            $filename = preg_replace("/^single-/m", "", $t);
+            $tax = "";
+            preg_match("/[A-z0-9]+/", $filename, $tax);
+
+            $tax = count($templates) - 1 <= $i ? "" : trailingslashit($tax[0]);
+
+            $filename = str_replace( str_replace("/", "", $tax) . "-", "", $filename);
+
+            $tmpl[] =  trailingslashit($template_path) . $tax . $filename;
+        }
+        $tmpl[] = $template_path . "/singular.php";
+
+        self::$templates_parts = $tmpl;
+    }
+
+    public static function getAttachments($template_path, $type, $templates): void {
+        foreach($templates as $i => $t) {
+            $folder = "";
+            preg_match("/^([A-z]+)-/m", $t, $folder);
+            $folder = count($folder) > 1 ? trailingslashit($folder[1]) : "";
+            $filename = sanitize_file_name(str_replace(sanitize_file_name($folder), "", $t));
+
+            self::$templates_parts[] = trailingslashit($template_path) . $folder . $filename;
+        }
+    }
+
+    public static function getTaxonomies($template_path, $type, $templates): void {
+        $tmpl = [];
+
+        foreach($templates as $i => $t) {
+            $filename = preg_replace("/^taxonomy-/m", "", $t);
+            $tax = "";
+            preg_match("/[A-z0-9]+/", $filename, $tax);
+
+            $tax = count($templates) - 1 <= $i ? "" : trailingslashit($tax[0]);
+
+            $filename = str_replace( str_replace("/", "", $tax) . "-", "", $filename);
+
+            $tmpl[] =  trailingslashit($template_path) . $tax . $filename;
+        }
+
+        self::$templates_parts = $tmpl;
+    }
+
+    public static function getTags($template_path, $type, $templates): void {
+        self::getDefault($template_path, $type, $templates);
+    }
+
+    public static function getDates($template_path, $type, $templates): void {
+        self::$templates_parts[] = is_year() ?  $template_path . "/year.php" : (is_month() ? $template_path ."/month.php" : $template_path . "/day.php");
+        self::$templates_parts[] = $template_path . "/$type.php";
+    }
+
+    public static function getSearchs($template_path, $type, $templates): void {
+        self::$templates_parts[] = $template_path . "/$type.php";
+    }
+
+    public static function getComponents($name, $args = null) {
+        $hook_name = current_filter();
+
+        $component_name = preg_replace("/^get_/m", "", $hook_name);
+
+        $template_path = get_template_directory() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["components"];
+
+        self::$templates_parts[] = $template_path . "/" . $component_name . ".php";
+//        comments_template();
+
+        do_action("template_render", self::$templates_parts, $hook_name);
     }
 
 
 
     // Old code
-    public static function getTemplate($template, $type, $templates): string|null {
-        if ($type === "index") {
-            return get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . $type . ".php";
-        } elseif ($type === "single") {
-            $type = str_replace(".php", "", $templates[count($templates) - 2]);
-            return get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["components"] . "/" . $type . ".php";
-        } else {
-            return get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["components"] . "/" . $type . ".php";
-        }
-    }
-
-    public static function getPages($template, $type, $templates): string|Error {
-        global $wp_stylesheet_path;
-        $wp_stylesheet_path = get_theme_root() ."/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["pages"];
-
-        if ($type === "frontpage") {
-            $file = $wp_stylesheet_path . "/$type.php";
-
-            return file_exists($file) ? $file : $wp_stylesheet_path . "/index.php";
-        } elseif ($type === "home") {
-            $file = $wp_stylesheet_path . "/home.php";
-
-            return file_exists($file) ? $file : $wp_stylesheet_path . "/index.php";
-        }
-
-        $template_name = "";
-        foreach($templates as $i => $t) {
-            $filename = preg_replace("/^page-/m", "", $t);
-
-
-            if (file_exists($wp_stylesheet_path . "/" . $filename)) {
-                $template_name = $filename;
-                break;
-            } elseif ($filename === "page.php" && !file_exists($wp_stylesheet_path . "/" . $filename)) {
-                $template_name = "index.php";
-            } else  {
-                $wp_stylesheet_path = $wp_stylesheet_path . "/";
-                $template_name = "index.php";
-            }
-        }
-
-        $file = $wp_stylesheet_path . "/" . $template_name;
-        if (!file_exists($file)) {
-            do_action("template_error", $template_name, $templates);
-            return throw new Error("Template file not found: " . $file);
-        }
-
-        return $file;
-    }
-    /*public static function getPages($template, $type, $templates): string|Error {
-        global $wp_stylesheet_path;
-        $wp_stylesheet_path = get_theme_root() ."/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["pages"];
-
-        if ($type === "frontpage") {
-            $file = $wp_stylesheet_path . "/$type.php";
-
-            return file_exists($file) ? $file : $wp_stylesheet_path . "/index.php";
-        } elseif ($type === "home") {
-            $file = $wp_stylesheet_path . "/home.php";
-
-            return file_exists($file) ? $file : $wp_stylesheet_path . "/index.php";
-        }
-
-        $template_name = "";
-        foreach($templates as $i => $t) {
-            $filename = preg_replace("/^page-/m", "", $t);
-
-
-            if (file_exists($wp_stylesheet_path . "/" . $filename)) {
-                $template_name = $filename;
-                break;
-            } elseif ($filename === "page.php" && !file_exists($wp_stylesheet_path . "/" . $filename)) {
-                $template_name = "index.php";
-            } else  {
-                $wp_stylesheet_path = $wp_stylesheet_path . "/";
-                $template_name = "index.php";
-            }
-        }
-
-        $file = $wp_stylesheet_path . "/" . $template_name;
-        if (!file_exists($file)) {
-            do_action("template_error", $template_name, $templates);
-            return throw new Error("Template file not found: " . $file);
-        }
-
-        return $file;
-    }*/
 
 
 
-    public static function getComponents($name, $args):string {
+    /*public static function getComponents($name, $args):string {
         global $wp_stylesheet_path;
         $wp_stylesheet_path = get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["components"];
 
@@ -165,85 +159,5 @@ class TemplateLoader {
         } else {
             return throw new Error("Template file not found: " . $file);
         }
-    }
-
-    public static function getArchives($template, $type, $templates): string {
-        global $wp_stylesheet_path;
-        $wp_stylesheet_path = get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["archives"];
-
-        $template_name = preg_replace("/^archive-/m", "", str_replace(".php", "", $templates[count($templates) - 2]));
-
-        return $wp_stylesheet_path . "/" . $template_name . ".php";
-    }
-
-    public static function getTags($template, $type, $templates): string|Error {
-        global $wp_stylesheet_path;
-        $wp_stylesheet_path = get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["tags"];
-
-        $template_name = "";
-        foreach($templates as $i => $t) {
-            $filename = preg_replace("/^tag-/m", "", $t);
-            if (file_exists($wp_stylesheet_path . "/" . $filename)) {
-                $template_name = $filename;
-                break;
-            } else {
-                $template_name = "index.php";
-            }
-        }
-
-        $file = $wp_stylesheet_path . "/" . $template_name;
-        if (!file_exists($file)) return throw new Error("Template file not found: " . $file);
-
-        return $file;
-    }
-
-    public static function getCategories($template, $type, $templates): string|Error {
-        global $wp_stylesheet_path;
-        $wp_stylesheet_path = get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["categories"];
-
-        $template_name = "";
-        foreach($templates as $i => $t) {
-            $filename = preg_replace("/^category-/m", "", $t);
-            if (file_exists($wp_stylesheet_path . "/" . $filename)) {
-                $template_name = $filename;
-                break;
-            } else {
-                $template_name = "index.php";
-            }
-        }
-
-        $file = $wp_stylesheet_path . "/" . $template_name;
-        if (!file_exists($file)) return throw new Error("Template file not found: " . $file);
-
-        return $file;
-    }
-
-    public static function getTaxonomies($template, $type, $templates): string|Error {
-        global $wp_stylesheet_path;
-        $wp_stylesheet_path = get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["taxonomies"];
-
-        $template_name = "";
-        foreach($templates as $i => $t) {
-            $filename = preg_replace("/^taxonomy-/m", "", $t);
-            $tax = "";
-            preg_match("/[A-z0-9]+/", $filename, $tax);
-
-            $filename = str_replace($tax[0] .  "-", "", $filename);
-            var_dump($filename);
-            if (file_exists($wp_stylesheet_path . "/" . $tax[0] . "/" . $filename)) {
-                $template_name = $tax[0] . "/" . str_replace($tax[0] .  "-", "", $filename);
-                break;
-            } else if (file_exists($wp_stylesheet_path . "/" . $tax[0] . "/index.php")) {
-                $template_name = $tax[0] . "/index.php";
-                break;
-            } else {
-                $template_name = "index.php";
-            }
-        }
-
-        $file = $wp_stylesheet_path . "/" . $template_name;
-        if (!file_exists($file)) return throw new Error("Template file not found: " . $file);
-
-        return $file;
-    }
+    }*/
 }
