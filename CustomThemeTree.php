@@ -23,9 +23,7 @@ class CustomThemeTree extends TemplateLoader {
             "categories"=> "categories",
             "components"=> "components",
             "dates"=> "dates",
-            "errors"=> "errors",
             "pages"=> "pages",
-            "search"=> "search",
             "singles"=> "singles",
             "tags"=> "tags",
             "taxonomies"=> "taxonomies"
@@ -65,25 +63,20 @@ class CustomThemeTree extends TemplateLoader {
 
         TemplateLoader::init();
 
-        add_filter("index_template", [TemplateLoader::class, "getTemplate"], 100, 3);
-        add_filter("single_template", [TemplateLoader::class, "getTemplates"], 100, 3);
-        add_filter("404_template", [TemplateLoader::class, "getTemplate"], 100, 3);
+        $template_types = get_default_block_template_types();
 
-        add_filter("frontpage_template", [TemplateLoader::class, "getTemplates"], 100, 3);
-        add_filter("home_template", [TemplateLoader::class, "getTemplates"], 100, 3);
-        add_filter("page_template", [TemplateLoader::class, "getTemplates"], 100, 3);
+        foreach ($template_types as $type => $opt) {
+            add_filter("{$type}_template", [TemplateLoader::class, 'getTemplates'], 10, 3);
+        }
 
-        add_filter("get_header", [TemplateLoader::class, "getComponents"], 100, 2);
-        add_filter("get_footer", [TemplateLoader::class, "getComponents"], 100, 2);
-        add_filter("get_sidebar", [TemplateLoader::class, "getComponents"], 100, 2);
-        add_filter("get_topbar", [TemplateLoader::class, "getComponents"], 100, 2);
-
-        add_filter("archive_template", [TemplateLoader::class, "getTemplates"], 100, 3);
-
-        add_filter("tag_template", [TemplateLoader::class, "getTags"], 100, 3);
-
-        add_filter("category_template", [TemplateLoader::class, "getTemplates"], 100, 3);
-        add_filter("taxonomy_template", [TemplateLoader::class, "getTemplates"], 100, 3);
+        // Built-in Wordpress component loader
+        $default_components = [
+            "header", "footer",
+            "sidebar", "search_form"
+        ];
+        foreach ($default_components as $component) {
+            add_filter("get_$component", [TemplateLoader::class, 'getComponents'], 10, 2);
+        }
     }
 
     private function create_custom_directories(): void {
@@ -133,14 +126,10 @@ class CustomThemeTree extends TemplateLoader {
     }
 
     private function create_required_files(): void {
-//        if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php", "<?php\n\necho '<h1 style=\'text-align:center;\'>New Files tree is operational !</h1>';");
+        if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php", "<?php\n\necho '<h1 style=\'text-align:center;\'>New Files tree is operational !</h1>';");
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php", "<?php\n\n");
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/components/footer.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/components/footer.php", "<?php\n\n");
 
         if (!file_exists($this->theme_directory . "/" . STYLESHEETS_DIR . "/style.css")) file_put_contents($this->theme_directory . "/" . STYLESHEETS_DIR . "/css/style.css", "");
-    }
-
-    public function custom_template_loader($name): void {
-        var_dump($name);
     }
 }
