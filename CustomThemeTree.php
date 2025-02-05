@@ -52,6 +52,8 @@ class CustomThemeTree extends TemplateLoader {
      */
     public function __construct() {
 
+        $this->includes();
+
         $this->theme = wp_get_theme();
         $this->theme_directory = $this->theme->get_theme_root() . "/" . get_template();
         $this->config_directory = "config";
@@ -74,6 +76,11 @@ class CustomThemeTree extends TemplateLoader {
         define("Skycel\CustomTree\STYLESHEETS_DIR", $this->default["stylesheets"]);
 
         $this->init();
+    }
+
+    protected function includes(): void {
+        require_once __DIR__ . "/includes/custom-template.inc.php";
+        require_once __DIR__ . "/includes/functions.inc.php";
     }
 
     /**
