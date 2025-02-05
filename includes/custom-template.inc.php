@@ -8,7 +8,7 @@
  * @param array $args Optional. Additional arguments to pass to the template.
  * @return bool True if the template was found and loaded, false otherwise.
  */
-function tree_get_topbar($name = null, $args = array()) {
+function tree_get_topbar(string $name = null, array $args = array()): bool {
 
     do_action("get_topbar", $name, $args);
 
@@ -23,4 +23,5 @@ function tree_get_topbar($name = null, $args = array()) {
     if ( ! locate_template( $templates, true, true, $args ) ) {
         return false;
     }
+    return true;
 }
