@@ -1,7 +1,8 @@
 {
   "name": "skycel/custom-theme-tree",
   "description": " WordPress plugin that provides a structured and organized theme development environment with customizable directory structures.",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "license": "MIT",
   "authors": [
     {
