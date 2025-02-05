@@ -5,6 +5,11 @@ namespace Skycel\CustomTree;
 use WP_Theme;
 use Error;
 
+/**
+ * Class for managing custom theme directory structures and settings.
+ * Provides functionality for initializing themes, creating custom directories,
+ * handling templates and stylesheets, and loading configurations.
+ */
 class CustomThemeTree extends TemplateLoader {
     public WP_Theme $theme;
 
@@ -35,11 +40,14 @@ class CustomThemeTree extends TemplateLoader {
 
     public function __construct($dirs = null, $config_file = "theme.php") {
 
-        wp_set_template_globals();
-
-        if ($dirs) {
-            $this->default = array_merge_recursive_distinct($this->default, $dirs);
-        }
+    /**
+     * Constructor method to initialize theme settings and configuration.
+     * Handles the creation of a configuration directory and file if they do not exist,
+     * and merges custom configurations if enabled.
+     *
+     * @return void
+     */
+    public function __construct() {
 
         $this->theme = wp_get_theme();
         $this->theme_directory = $this->theme->get_theme_root() . "/" . get_template();
@@ -56,6 +64,11 @@ class CustomThemeTree extends TemplateLoader {
         $this->init();
     }
 
+    /**
+     * Initializes custom directories, required files, and sets up template and component loaders.
+     *
+     * @return void
+     */
     protected function init(): void
     {
         $this->create_custom_directories();
@@ -69,7 +82,7 @@ class CustomThemeTree extends TemplateLoader {
             add_filter("{$type}_template", [TemplateLoader::class, 'getTemplates'], 10, 3);
         }
 
-        // Built-in Wordpress component loader
+        // Component loader
         $default_components = [
             "header", "footer",
             "sidebar", "search_form"
@@ -79,6 +92,11 @@ class CustomThemeTree extends TemplateLoader {
         }
     }
 
+    /**
+     * Creates custom directories for templates and stylesheets, including handling subdirectories and optional .gitkeep files.
+     *
+     * @return void
+     */
     private function create_custom_directories(): void {
         // Make all directories for templates
 
@@ -108,6 +126,13 @@ class CustomThemeTree extends TemplateLoader {
         }
     }
 
+    /**
+     * Creates a specified directory within the theme directory. If the directory does
+     * not exist, it creates it and optionally adds a .gitkeep file if enabled.
+     *
+     * @param string $dir_name The name of the directory to be created.
+     * @return string|Error The path to the created directory or an error object if the creation fails.
+     */
     private function create_directory($dir_name): string|Error {
         if (!file_exists($this->theme_directory . "/" . $dir_name)) {
             $success = mkdir($this->theme_directory . "/" . $dir_name);
@@ -125,7 +150,13 @@ class CustomThemeTree extends TemplateLoader {
         return $this->theme_directory . "/" . $dir_name;
     }
 
+    /**
+     * Creates required template and stylesheet files if they do not already exist.
+     *
+     * @return void
+     */
     private function create_required_files(): void {
+        // Create CustomThemeTree required files
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php", "<?php\n\necho '<h1 style=\'text-align:center;\'>New Files tree is operational !</h1>';");
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php", "<?php\n\n");
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/components/footer.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/components/footer.php", "<?php\n\n");

@@ -23,6 +23,11 @@ function test_plugin(): void {
         new CustomThemeTree(\CUSTOMTREE);
     }
 
+/**
+ * Loads the custom tree plugin if enabled and properly configured.
+ *
+ * @return void
+ */
 }
 add_action("after_setup_theme", "test_plugin");
 
