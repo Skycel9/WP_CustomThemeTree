@@ -1,11 +1,16 @@
 <?php
 // Add some functions to quickly load template
 
+/**
+ * Loads the appropriate topbar template file.
+ *
+ * @param string|null $name Optional. The specific topbar name to load.
+ * @param array $args Optional. Additional arguments to pass to the template.
+ * @return bool True if the template was found and loaded, false otherwise.
+ */
 function tree_get_topbar($name = null, $args = array()) {
 
     do_action("get_topbar", $name, $args);
-
-    return false;
 
     $templates = array();
     $name      = (string) $name;
@@ -18,12 +23,4 @@ function tree_get_topbar($name = null, $args = array()) {
     if ( ! locate_template( $templates, true, true, $args ) ) {
         return false;
     }
-}
-
-function get_blog_url($blog_id = null) {
-    if (null === $blog_id) $blog_id = get_current_blog_id();
-
-    if (get_current_blog_id() !== $blog_id && get_blogaddress_by_id($blog_id)) switch_to_blog($blog_id);
-
-    return get_post_type_archive_link( 'post' );
 }
