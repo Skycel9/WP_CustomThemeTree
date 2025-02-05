@@ -2,7 +2,6 @@
 
 namespace Skycel\CustomTree;
 
-use Error;
 use WP_Error;
 
 /**
@@ -256,31 +255,7 @@ class TemplateLoader {
         $template_path = get_template_directory() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["components"];
 
         self::$templates_parts[] = $template_path . "/" . $component_name . ".php";
-//        comments_template();
 
         do_action("template_render", self::$templates_parts, $hook_name);
     }
-
-
-
-    // Old code
-
-
-
-    /*public static function getComponents($name, $args):string {
-        global $wp_stylesheet_path;
-        $wp_stylesheet_path = get_theme_root() . "/" . get_template() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["components"];
-
-        $hook_name = current_filter();
-
-        $component_name = preg_replace("/^get_/m", "", $hook_name);
-
-        $file = $wp_stylesheet_path . "/" . $component_name . ".php";
-
-        if (file_exists($file)) {
-            return $file;
-        } else {
-            return throw new Error("Template file not found: " . $file);
-        }
-    }*/
 }

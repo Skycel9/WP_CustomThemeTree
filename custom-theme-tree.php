@@ -9,21 +9,8 @@
 
 use Skycel\CustomTree\CustomThemeTree;
 
-require_once __DIR__ . "/custom-template.php";
-require_once __DIR__ . "/functions.php";
 require_once __DIR__ . "/includes/custom-template.inc.php";
 require_once __DIR__ . "/includes/functions.inc.php";
-
-function test_plugin(): void {
-    if (!\defined('USE_CUSTOMTREE_PLUGIN') || USE_CUSTOMTREE_PLUGIN !== true) {
-        return;
-    }
-
-    if (!\defined("CUSTOMTREE") || !is_array(CUSTOMTREE)) {
-        new CustomThemeTree();
-    } else {
-        new CustomThemeTree(\CUSTOMTREE);
-    }
 
 /**
  * Loads the custom tree plugin if enabled and properly configured.

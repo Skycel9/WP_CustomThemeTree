@@ -38,7 +38,6 @@ class CustomThemeTree extends TemplateLoader {
         ]
     );
 
-    public function __construct($dirs = null, $config_file = "theme.php") {
 
     /**
      * Constructor method to initialize theme settings and configuration.
@@ -59,7 +58,6 @@ class CustomThemeTree extends TemplateLoader {
             }
             file_put_contents($this->theme_directory . "/" . $this->config_directory . "/theme.php", "<?php\n\nconst USE_GITKEEP = true;\n\nconst USE_CUSTOMTREE_PLUGIN = true;\nconst CUSTOMTREE = array()");
         }
-        require_once $this->theme_directory . "/" . $this->config_directory . "/" . $config_file;
         require_once $this->theme_directory . "/" . $this->config_directory . "/" . "theme.php";
 
         if (!USE_CUSTOMTREE_PLUGIN) return;
@@ -110,7 +108,6 @@ class CustomThemeTree extends TemplateLoader {
      */
     private function create_custom_directories(): void {
         // Make all directories for templates
-
         $this->templates_directory = $this->create_directory(TEMPLATES_DIR);
 
         if (!defined("TEMPLATES_SUBDIRS")) {
@@ -179,6 +176,5 @@ class CustomThemeTree extends TemplateLoader {
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php", "<?php\n\n");
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/components/footer.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/components/footer.php", "<?php\n\n");
 
-        if (!file_exists($this->theme_directory . "/" . STYLESHEETS_DIR . "/style.css")) file_put_contents($this->theme_directory . "/" . STYLESHEETS_DIR . "/css/style.css", "");
     }
 }
