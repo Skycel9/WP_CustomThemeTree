@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Merges multiple arrays recursively without duplicating scalar values for numeric keys
  * and overriding values for associative keys.

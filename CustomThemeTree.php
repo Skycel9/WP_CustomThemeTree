@@ -5,6 +5,10 @@ namespace Skycel\CustomTree;
 use WP_Theme;
 use Error;
 
+
+// Load Template Loader first
+require_once __DIR__ . '/TemplateLoader.php';
+
 /**
  * Class for managing custom theme directory structures and settings.
  * Provides functionality for initializing themes, creating custom directories,
