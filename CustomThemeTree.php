@@ -53,13 +53,23 @@ class CustomThemeTree extends TemplateLoader {
         $this->theme_directory = $this->theme->get_theme_root() . "/" . get_template();
         $this->config_directory = "config";
 
-        if (!file_exists($this->theme_directory . "/" . $this->config_directory . "/" . $config_file)) {
-            if (!is_dir($this->theme_directory . "/config" )) {
-                $this->config_directory = $this->create_directory("config");
+        if (!file_exists(trailingslashit($this->theme_directory) . trailingslashit($this->config_directory) . "theme.php")) {
+            if (!is_dir(trailingslashit($this->theme_directory) . $this->config_directory )) {
+                $this->config_directory = $this->create_directory($this->config_directory);
             }
-            file_put_contents($this->theme_directory . "/" . $this->config_directory . "/theme.php", "<?php\n\nconst TEMPLATES_DIR = 'templates';\nconst STYLESHEETS_DIR = 'assets';\n");
+            file_put_contents($this->theme_directory . "/" . $this->config_directory . "/theme.php", "<?php\n\nconst USE_GITKEEP = true;\n\nconst USE_CUSTOMTREE_PLUGIN = true;\nconst CUSTOMTREE = array()");
         }
         require_once $this->theme_directory . "/" . $this->config_directory . "/" . $config_file;
+        require_once $this->theme_directory . "/" . $this->config_directory . "/" . "theme.php";
+
+        if (!USE_CUSTOMTREE_PLUGIN) return;
+
+        if (is_array(CUSTOMTREE) && count(CUSTOMTREE) > 0) {
+            $this->default = array_merge_recursive_distinct($this->default, CUSTOMTREE);
+        }
+
+        define("Skycel\CustomTree\TEMPLATES_DIR", $this->default["templates"]);
+        define("Skycel\CustomTree\STYLESHEETS_DIR", $this->default["stylesheets"]);
 
         $this->init();
     }
@@ -85,7 +95,8 @@ class CustomThemeTree extends TemplateLoader {
         // Component loader
         $default_components = [
             "header", "footer",
-            "sidebar", "search_form"
+            "sidebar", "search_form",
+            "topbar"
         ];
         foreach ($default_components as $component) {
             add_filter("get_$component", [TemplateLoader::class, 'getComponents'], 10, 2);
@@ -156,6 +167,13 @@ class CustomThemeTree extends TemplateLoader {
      * @return void
      */
     private function create_required_files(): void {
+        // Create Wordpress required files
+        if (!file_exists($this->theme_directory . "/index.php")) file_put_contents($this->theme_directory . "/index.php", "<?php\n/**\n * This is a required file for WordPress themes\n */\n\n// Silence is golden.");
+        if (!file_exists($this->theme_directory . "/header.php")) file_put_contents($this->theme_directory . "/header.php", "<?php\n/**\n * This is a required file for WordPress themes\n */\n\n// Silence is golden.");
+        if (!file_exists($this->theme_directory . "/footer.php")) file_put_contents($this->theme_directory . "/footer.php", "<?php\n/**\n * This is a required file for WordPress themes\n */\n\n// Silence is golden.");
+
+        if (!file_exists($this->theme_directory . "/" . STYLESHEETS_DIR . "/style.css")) file_put_contents($this->theme_directory . "/" . STYLESHEETS_DIR . "/css/style.css", "");
+
         // Create CustomThemeTree required files
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/index.php", "<?php\n\necho '<h1 style=\'text-align:center;\'>New Files tree is operational !</h1>';");
         if (!file_exists($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php")) file_put_contents($this->theme_directory . "/" . TEMPLATES_DIR . "/components/header.php", "<?php\n\n");
