@@ -1,0 +1,21 @@
+{
+  "name": "skycel/custom-theme-tree",
+  "description": " WordPress plugin that provides a structured and organized theme development environment with customizable directory structures.",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Skycel",
+      "email": "hello@skycel.me"
+    }
+  ],
+  "require": {
+    "php": ">= 8.0"
+  },
+  "require-dev": {
+    "larapack/dd": "^1.1"
+  },
+  "suggest": {
+    "larapack/dd": "Required to use the dd method."
+  }
+}
