@@ -41,7 +41,7 @@ function array_merge_recursive_distinct(array ...$arrays): array {
  * @param string $dir Path to the directory to check.
  * @return bool True if the directory is empty, false otherwise.
  */
-function is_dir_empty($dir): bool {
+function is_dir_empty(string $dir): bool {
     return (count(scandir($dir)) == 2);
 }
 
@@ -49,9 +49,9 @@ function is_dir_empty($dir): bool {
  * Retrieves the URL of the blog archive for the specified blog ID.
  *
  * @param int|null $blog_id The ID of the blog. If null, uses the current blog ID.
- * @return string The URL of the blog archive.
+ * @return bool|string The URL of the blog archive.
  */
-function get_blog_url($blog_id = null) {
+function get_blog_url(int $blog_id = null): false|string {
     if (null === $blog_id) $blog_id = get_current_blog_id();
 
     if (get_current_blog_id() !== $blog_id && get_blogaddress_by_id($blog_id)) switch_to_blog($blog_id);
