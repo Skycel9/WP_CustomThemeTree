@@ -254,8 +254,8 @@ class TemplateLoader {
 
         $template_path = get_template_directory() . "/" . TEMPLATES_DIR . "/" . TEMPLATES_SUBDIRS["components"];
 
-        self::$templates_parts[] = $template_path . "/" . $component_name . ".php";
+        $components[] = $template_path . "/" . $component_name . ".php";
 
-        do_action("template_render", self::$templates_parts, $hook_name);
+        do_action("template_render", $components, $hook_name);
     }
 }
