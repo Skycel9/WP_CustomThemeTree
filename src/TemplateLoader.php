@@ -1,6 +1,6 @@
 <?php
 
-namespace Skycel\CustomTree;
+namespace Skycel\CustomThemeTree;
 
 use WP_Error;
 
