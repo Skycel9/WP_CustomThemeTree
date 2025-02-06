@@ -18,5 +18,10 @@
   },
   "suggest": {
     "larapack/dd": "Required to use the dd method."
+  },
+  "autoload": {
+    "psr-4": {
+      "Skycel\\CustomThemeTree\\": "./"
+    }
   }
 }
