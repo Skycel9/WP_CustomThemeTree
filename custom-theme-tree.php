@@ -7,10 +7,14 @@
  * Author URI: https://skycel.me
  */
 
+/**
+ * This file is required for Wordpress plugin system
+ * If you use composer, you're not concerned
+ */
+
 use Skycel\CustomTree\CustomThemeTree;
 
-require_once __DIR__ . "/includes/custom-template.inc.php";
-require_once __DIR__ . "/includes/functions.inc.php";
+require_once __DIR__ . '/src/CustomThemeTree.php';
 
 /**
  * Loads the custom tree plugin if enabled and properly configured.
