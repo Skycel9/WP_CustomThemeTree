@@ -79,8 +79,8 @@ class CustomThemeTree extends TemplateLoader {
     }
 
     protected function includes(): void {
-        require_once __DIR__ . "/includes/custom-template.inc.php";
-        require_once __DIR__ . "/includes/functions.inc.php";
+        require_once __DIR__ . "/../includes/custom-template.inc.php";
+        require_once __DIR__ . "/../includes/functions.inc.php";
     }
 
     /**
