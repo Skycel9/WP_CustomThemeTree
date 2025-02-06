@@ -12,7 +12,7 @@
  * If you use composer, you're not concerned
  */
 
-use Skycel\CustomTree\CustomThemeTree;
+use Skycel\CustomThemeTree\CustomThemeTree;
 
 require_once __DIR__ . '/src/CustomThemeTree.php';
 

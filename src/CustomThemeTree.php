@@ -72,8 +72,8 @@ class CustomThemeTree extends TemplateLoader {
             $this->default = array_merge_recursive_distinct($this->default, CUSTOMTREE);
         }
 
-        define("Skycel\CustomTree\TEMPLATES_DIR", $this->default["templates"]);
-        define("Skycel\CustomTree\STYLESHEETS_DIR", $this->default["stylesheets"]);
+        define("TEMPLATES_DIR", $this->default["templates"]);
+        define("STYLESHEETS_DIR", $this->default["stylesheets"]);
 
         $this->init();
     }
